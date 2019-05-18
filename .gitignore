@@ -1,0 +1,17 @@
+
+.codelite/.tern-port
+.codelite/.tern-project
+.codelite/compilation.db
+.codelite/KSP.tags
+.codelite/refactoring.db
+Debug/.d
+Debug/main.cpp.o
+Debug/main.cpp.o.d
+Debug/s5132012_k_shortest_paths.cpp.o
+Debug/s5132012_k_shortest_paths.cpp.o.d
+Debug/s5132012_k_shortest_paths.exe
+KSP.workspace
+Makefile
+s5132012_k_shortest_paths.mk
+s5132012_k_shortest_paths.project
+s5132012_k_shortest_paths.txt
