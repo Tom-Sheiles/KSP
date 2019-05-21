@@ -15,3 +15,6 @@ Makefile
 s5132012_k_shortest_paths.mk
 s5132012_k_shortest_paths.project
 s5132012_k_shortest_paths.txt
+.codelite/KSP.session
+Debug/fileName
+Debug/input.txt
