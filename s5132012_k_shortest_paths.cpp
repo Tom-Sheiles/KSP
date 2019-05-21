@@ -13,11 +13,12 @@ class GraphNodes{
     
     private:
         int numberOfEdges;
-        std::vector <std::pair<GraphNodes*, int> > edges;
         
     public:
         char name;
         int distance;
+        GraphNodes* previous;
+        std::vector <std::pair<GraphNodes*, int> > edges;
     
         GraphNodes(char Name){
             this->name = Name;
@@ -30,6 +31,8 @@ class GraphNodes{
             this-> numberOfEdges += 1;
             return;
         }
+        
+        int getEdgeNumber(){return numberOfEdges;}
     
 };
 
@@ -126,7 +129,7 @@ void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNode
     int nextLowestIndex = 0;
     
     for(int i = 0; i < numberOfNodes; i++){
-        graph[i].distance = 999;
+        graph[i].distance = INT_MAX;
         nodeQueue.push_back(graph[i]);
     }
     
@@ -136,11 +139,21 @@ void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNode
     while(!nodeQueue.empty()){
         nextLowest = findLowestDistance(nodeQueue, &nextLowestIndex);
         nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
+        cout << nextLowest.name << endl;
         
         //TODO: Continue here. need to find if neighbours have lower value. Once this is done, finish dijskra then move on to Yens algorithm
-        
-        //for each neighbour
+        for(int i = 0; i < nextLowest.getEdgeNumber(); i++){
+            
+            int alternate = nextLowest.distance + nextLowest.edges[i].second;
+            
+            if(alternate < nextLowest.edges[i].first->distance){
+                nextLowest.edges[i].first->distance = alternate;
+                previous.push_back(nextLowest);
+            }
+        } 
     }
+    
+    cout << "finished" << endl;
     
 }
 
