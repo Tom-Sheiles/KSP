@@ -9,6 +9,7 @@
 
 using namespace std;
 
+// Class to define a particular instance of a node in a graph. 
 class GraphNodes{
     
     private:
@@ -17,7 +18,7 @@ class GraphNodes{
     public:
         char name;
         int distance;
-        GraphNodes* previous;
+        pair<char, int> previous;
         std::vector <std::pair<GraphNodes*, int> > edges;
     
         GraphNodes(char Name){
@@ -37,10 +38,9 @@ class GraphNodes{
 };
 
 
+// Initializes the names and edge weights of the nodes in the graph
 std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int *nodesN, int *edgesN){
-    
-    //a.addEdge(&b, 10);
-    
+        
     int numberOfNodes = inputs[0][0] - '0';
     int numberOfEdges = inputs[0][2] - '0';
     *nodesN = numberOfNodes;
@@ -84,9 +84,8 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int 
         exists = false;
     }
     
-    //GraphNodes *test = &nodes[0];
-   // test->name = 'e';
     
+    // Initializes the edge weights for all nodes in the graph
     for(int i = 1; i < numberOfInputs; i++){
         GraphNodes *origin;
         GraphNodes *destination;
@@ -105,6 +104,7 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int 
     return nodes;
 }
 
+// Calculate the node with the lowest distance from the origin node
 GraphNodes findLowestDistance(std::vector<GraphNodes> nodes, int *index){
     
     int lowest = nodes[0].distance;
@@ -121,36 +121,72 @@ GraphNodes findLowestDistance(std::vector<GraphNodes> nodes, int *index){
 }
 
 
+// Locates the position of the node at location current step in the edges of the node at location nextLowest in the nodeQueue
+int getNodeIndex(std::vector<GraphNodes> nodeQueue, int nextLowest, int currentStep){
+    
+    int index = -1;
+    
+    char name =  nodeQueue[nextLowest].edges[currentStep].first->name;
+    for(int i = 0; (unsigned)i < nodeQueue.size(); i++){
+        if(nodeQueue[i].name == name){
+            index = i;
+        }
+    }
+    
+    if(index == -1){
+        cout << "Could not find node " << nodeQueue[nextLowest].edges[currentStep].first->name << endl;
+        exit(1);
+    }
+    
+    return index;
+}
+
+
+// Calculates the shortest path from the source node to the target
 void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNodes, int numberOfEdges){
     
     std::vector<GraphNodes> nodeQueue;
     std::vector<GraphNodes> previous;
+    std::vector<GraphNodes> route;
     GraphNodes nextLowest = source;
     int nextLowestIndex = 0;
     
+    // Initialize node weights
     for(int i = 0; i < numberOfNodes; i++){
         graph[i].distance = INT_MAX;
+        //graph[i].previous = NULL;
         nodeQueue.push_back(graph[i]);
     }
     
-    source.distance = 0;
+    //Initialize the source node weight to 0
     nodeQueue[0].distance = 0;
     
+    
+    // While there remains unvisited nodes, find the node with the next lowest cost to move to and add that to the queue
     while(!nodeQueue.empty()){
         nextLowest = findLowestDistance(nodeQueue, &nextLowestIndex);
-        nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
-        cout << nextLowest.name << endl;
+        route.push_back(nextLowest);
+        //nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
         
-        //TODO: Continue here. need to find if neighbours have lower value. Once this is done, finish dijskra then move on to Yens algorithm
         for(int i = 0; i < nextLowest.getEdgeNumber(); i++){
             
-            int alternate = nextLowest.distance + nextLowest.edges[i].second;
+            int neighbourIndex = getNodeIndex(nodeQueue, nextLowestIndex, i);
+            
+            if(nodeQueue[neighbourIndex].distance > (nextLowest.distance + nextLowest.edges[i].second)){
+                
+                nodeQueue[neighbourIndex].distance = (nextLowest.distance + nextLowest.edges[i].second);
+                nodeQueue[neighbourIndex].previous.first = nextLowest.name;
+                nodeQueue[neighbourIndex].previous.second = nextLowest.edges[i].second;
+            }
+            
+            /*int alternate = nextLowest.distance + nextLowest.edges[i].second;
             
             if(alternate < nextLowest.edges[i].first->distance){
                 nextLowest.edges[i].first->distance = alternate;
-                previous.push_back(nextLowest);
-            }
+                previous.push_back(nextLowest);*/
+            
         } 
+        nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
     }
     
     cout << "finished" << endl;
