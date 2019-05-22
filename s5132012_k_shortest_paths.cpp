@@ -110,7 +110,7 @@ GraphNodes findLowestDistance(std::vector<GraphNodes> nodes, int *index){
     int lowest = nodes[0].distance;
     GraphNodes lowestNode = nodes[0];
     for(int i = 0; (unsigned)i < nodes.size() - 1; i++){
-        if(nodes[i].distance < lowest){
+        if(nodes[i].distance <= lowest){
             lowest = nodes[i].distance;
             lowestNode = nodes[i];
             *index = i;
@@ -178,13 +178,6 @@ void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNode
                 nodeQueue[neighbourIndex].previous.first = nextLowest.name;
                 nodeQueue[neighbourIndex].previous.second = nextLowest.edges[i].second;
             }
-            
-            /*int alternate = nextLowest.distance + nextLowest.edges[i].second;
-            
-            if(alternate < nextLowest.edges[i].first->distance){
-                nextLowest.edges[i].first->distance = alternate;
-                previous.push_back(nextLowest);*/
-            
         } 
         nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
     }
