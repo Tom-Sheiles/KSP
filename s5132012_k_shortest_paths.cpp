@@ -143,7 +143,7 @@ int getNodeIndex(std::vector<GraphNodes> nodeQueue, int nextLowest, int currentS
 
 
 // Calculates the shortest path from the source node to the target
-void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNodes, int numberOfEdges){
+std::vector<GraphNodes> Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNodes, int numberOfEdges){
     
     std::vector<GraphNodes> nodeQueue;
     std::vector<GraphNodes> previous;
@@ -182,14 +182,14 @@ void Dijkstra(std::vector<GraphNodes> graph, GraphNodes source, int numberOfNode
         nodeQueue.erase (nodeQueue.begin() + nextLowestIndex);
     }
     
-    cout << "finished" << endl;
+    return route;
     
 }
 
 
 void KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges){
     
-    Dijkstra(nodes, nodes[0], numberOfNodes, numberOfEdges);
+    std::vector<GraphNodes> nextFastestRoute = Dijkstra(nodes, nodes[0], numberOfNodes, numberOfEdges);
     
     return;
 }
