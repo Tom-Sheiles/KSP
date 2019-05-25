@@ -255,18 +255,22 @@ std::vector<GraphNodes> removeNextEdge(std::vector<GraphNodes> graph, char spur,
 
 float findPathLength(std::vector<char> route, std::vector<GraphNodes> graph){
     
-    /*for(int i = 0; (unsigned)i < route.size(); i++){
+    float total = 0;
+    for(int i = 0; (unsigned)i < route.size() - 1; i++){
+        int index = getNodeIndex(graph, route[i]);
+        for(int j = 0; (unsigned)j < graph[index].edges.size(); j++){
+            if(graph[index].edges[j].first->name == route[i+1])
+                total += graph[index].edges[j].second;
+        }
         
-    }*/
+    }
     
+    return total;
 }
 
 
 void KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int k){
-    
-    int i = 1;
-    i += 2;
-    
+
     std::vector<std::vector<char> > fastestRoutes;
     // TODO: Update the init function to get the source and sink and k
     std::vector<GraphNodes> fastestRoute = Dijkstra(nodes, nodes[0], nodes[5], &fastestRoutes, numberOfNodes, numberOfEdges);
@@ -274,7 +278,6 @@ void KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, in
     
     std::vector<GraphNodes> next = nodes;
     std::vector<std::vector<char> > nextRouteName;
-    float nextRoutesSizes[INT_MAX];
 
     // Calculate the k shortest paths using yens algorithm
     for(int i = 1; i < k; i++){
@@ -303,12 +306,18 @@ void KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, in
              * totalpath = rootpath + spurPath 
              * nextFastes.append(totalPath)*/
         }
-        //for(int k = 0; (unsigned)k < nextRouteName.size() - 1; k++){
-            //nextRoutesSizes[k] = findPathLength(nextRouteName[k], nodes);
-       // }
-       // cout << "";
+        
+        float nextRoutesSizes[nextRouteName.size()];
+        for(int k = 0; (unsigned)k < nextRouteName.size(); k++){
+            nextRoutesSizes[k] = findPathLength(nextRouteName[k], nodes);
+       }
+       cout << "";
     }
     
+    return;
+}
+
+void help(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int k){
     return;
 }
 
