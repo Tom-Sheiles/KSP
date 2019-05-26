@@ -45,8 +45,7 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs,int *
     int numberOfEdges = inputs[0][2] - '0';
     *nodesN = numberOfNodes;
     *edgesN = numberOfEdges;
-    int uniqueNodes[numberOfNodes]; 
-    std::fill_n(uniqueNodes, numberOfNodes, -1);//was char
+    char uniqueNodes[numberOfNodes]; 
     int uniqueNodesN = 0;
     bool exists = false;
     std::vector<GraphNodes> nodes;
@@ -106,7 +105,7 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs,int *
     *beginIndex = 0;
     *endIndex = 0;
   
-    for(int j = 0; j < nodes.size(); j++){
+    for(int j = 0; (unsigned)j < nodes.size(); j++){
         if(nodes[j].name == inputs[i][0])
             *beginIndex = j;
         if(nodes[j].name == inputs[i][2])
@@ -156,6 +155,7 @@ int getEdgeNodeIndex(std::vector<GraphNodes> nodeQueue, int nextLowest, int curr
 }
 
 
+// returns the index of a node in the graph
 int getNodeIndex(std::vector<GraphNodes> nodeQueue, char label){
     
     for(int i = 0; (unsigned)i < nodeQueue.size(); i++){
@@ -230,6 +230,8 @@ std::vector<GraphNodes> Dijkstra(std::vector<GraphNodes> graph, GraphNodes sourc
     
 }
 
+
+// returns a sub section of the input vector
 std::vector<char> slice(std::vector<char> input, int start, int end){
     
     vector<char>::const_iterator first = input.begin() + start;
@@ -240,13 +242,14 @@ std::vector<char> slice(std::vector<char> input, int start, int end){
 }
 
 
+// removes the next highest edge in the graph
 std::vector<GraphNodes> removeNextEdge(std::vector<GraphNodes> graph, char spur, std::vector<char> route){
     
     int spurIndex;
     int nextIndex;
     char nextName;
     
-    for(int i = 0; i < route.size(); i++){
+    for(int i = 0; (unsigned)i < route.size(); i++){
         if(spur == route[i]){
              spurIndex = i;
              nextIndex = spurIndex + 1;
@@ -256,7 +259,7 @@ std::vector<GraphNodes> removeNextEdge(std::vector<GraphNodes> graph, char spur,
     
     spurIndex = getNodeIndex(graph, spur);
     
-    for(int i = 0; i < graph[spurIndex].edges.size(); i++){
+    for(int i = 0; (unsigned)i < graph[spurIndex].edges.size(); i++){
         if(graph[spurIndex].edges[i].first->name == nextName)
             nextIndex = i;
     }
@@ -267,6 +270,7 @@ std::vector<GraphNodes> removeNextEdge(std::vector<GraphNodes> graph, char spur,
 }
 
 
+// finds the path length of a route string
 float findPathLength(std::vector<char> route, std::vector<GraphNodes> graph){
     
     float total = 0;
@@ -283,6 +287,7 @@ float findPathLength(std::vector<char> route, std::vector<GraphNodes> graph){
 }
 
 
+// uses yens algorithm to calculate the k shortest paths
 std::vector<std::vector<char> > KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int beginIndex, int endIndex, int k){
 
     std::vector<std::vector<char> > fastestRoutes;
@@ -339,12 +344,13 @@ std::vector<std::vector<char> > KSP(std::vector<GraphNodes> nodes, int numberOfN
 }
 
 
+// prints the k shortest paths
 void printOutput(std::vector<std::vector<char> > routes, std::vector<GraphNodes> nodes){
     
     cout << "Outputs: " << endl;
-    for(int i = 0; i < routes.size(); i++){
+    for(int i = 0; (unsigned)i < routes.size(); i++){
         cout << i+1 << ". ";
-        for(int j = 0; j < routes[i].size(); j++){
+        for(int j = 0; (unsigned)j < routes[i].size(); j++){
             cout << routes[i][j] << " ";
         }
         cout << findPathLength(routes[i], nodes) << endl;
