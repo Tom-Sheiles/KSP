@@ -307,15 +307,8 @@ std::vector<std::vector<char> > KSP(std::vector<GraphNodes> nodes, int numberOfN
         
         graphCopy = removeNextEdge(graphCopy, spurNode, fastestRoutes[0]);
         
-     
-        /*for(int p = 0; (unsigned)p < fastestRoutes.size(); p++){
-            if(rootPath == slice(fastestRoutes[p], 0, j)){
-                graphCopy[p].edges[j].second = INT_MAX;
-            }
-        }*/
-        
         GraphNodes spurNodeObject = graphCopy[getNodeIndex(graphCopy, spurNode)];
-        next = Dijkstra(graphCopy, spurNodeObject, nodes[5], &nextRouteName, numberOfNodes, numberOfEdges);
+        next = Dijkstra(graphCopy, spurNodeObject, nodes[endIndex], &nextRouteName, numberOfNodes, numberOfEdges);
         nextRouteName[j].insert(nextRouteName[j].begin(), rootPath.begin(), rootPath.end());
         
     }
