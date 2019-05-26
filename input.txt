@@ -8,3 +8,4 @@ E G 3
 F G 2
 F H 1
 G H 2
+C H 3

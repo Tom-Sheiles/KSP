@@ -39,13 +39,14 @@ class GraphNodes{
 
 
 // Initializes the names and edge weights of the nodes in the graph
-std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int *nodesN, int *edgesN){
+std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs,int *beginIndex, int *endIndex, int *k, int *nodesN, int *edgesN){
         
     int numberOfNodes = inputs[0][0] - '0';
     int numberOfEdges = inputs[0][2] - '0';
     *nodesN = numberOfNodes;
     *edgesN = numberOfEdges;
-    char uniqueNodes[numberOfNodes];
+    int uniqueNodes[numberOfNodes]; 
+    std::fill_n(uniqueNodes, numberOfNodes, -1);//was char
     int uniqueNodesN = 0;
     bool exists = false;
     std::vector<GraphNodes> nodes;
@@ -63,7 +64,7 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int 
             nodes.push_back(GraphNodes(inputs[i][0]));
             uniqueNodes[uniqueNodesN] = inputs[i][0];
             uniqueNodesN++;
-            cout << "Added " << inputs[i][0] << " to Graph" << endl;
+            //cout << "Added " << inputs[i][0] << " to Graph" << endl;
         }
         exists = false;
         
@@ -79,14 +80,15 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int 
             nodes.push_back(GraphNodes(inputs[i][2]));
             uniqueNodes[uniqueNodesN] = inputs[i][2];
             uniqueNodesN++;
-            cout << "Added " << inputs[i][2] << " to Graph" << endl;
+            //cout << "Added " << inputs[i][2] << " to Graph" << endl;
         }
         exists = false;
     }
     
     
     // Initializes the edge weights for all nodes in the graph
-    for(int i = 1; i < numberOfInputs; i++){
+    int i = 1;
+    for(i = 1; i < numberOfInputs - 1; i++){
         GraphNodes *origin;
         GraphNodes *destination;
         for(int j = 0; j < numberOfNodes; j++){
@@ -100,6 +102,18 @@ std::vector<GraphNodes> initalizeGraph(string inputs[], int numberOfInputs, int 
         
         origin->addEdge(destination, (inputs[i][4] - '0'));
     }
+    
+    *beginIndex = 0;
+    *endIndex = 0;
+  
+    for(int j = 0; j < nodes.size(); j++){
+        if(nodes[j].name == inputs[i][0])
+            *beginIndex = j;
+        if(nodes[j].name == inputs[i][2])
+            *endIndex = j;
+    }
+    
+    *k = inputs[i][4] - '0';
     
     return nodes;
 }
@@ -269,56 +283,72 @@ float findPathLength(std::vector<char> route, std::vector<GraphNodes> graph){
 }
 
 
-void KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int k){
+std::vector<std::vector<char> > KSP(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int beginIndex, int endIndex, int k){
 
     std::vector<std::vector<char> > fastestRoutes;
-    // TODO: Update the init function to get the source and sink and k
-    std::vector<GraphNodes> fastestRoute = Dijkstra(nodes, nodes[0], nodes[5], &fastestRoutes, numberOfNodes, numberOfEdges);
+    std::vector<GraphNodes> fastestRoute = Dijkstra(nodes, nodes[beginIndex], nodes[endIndex], &fastestRoutes, numberOfNodes, numberOfEdges);
     std::vector<GraphNodes> nextFastestRoutes;
     
     std::vector<GraphNodes> next = nodes;
     std::vector<std::vector<char> > nextRouteName;
 
     // Calculate the k shortest paths using yens algorithm
-    for(int i = 1; i < k; i++){
-        for(int j = 0; (unsigned)j < fastestRoutes[i - 1].size() - 1; j++){
-            std::vector<GraphNodes> graphCopy = nodes;
+    
+    for(int j = 0; (unsigned)j < fastestRoutes[0].size() - 1; j++){
+        std::vector<GraphNodes> graphCopy = nodes;
 
-            char spurNode = fastestRoutes[i - 1][j];
-            std::vector<char> rootPath = slice(fastestRoutes[i - 1], 0, j - 1);
-            
-            graphCopy = removeNextEdge(graphCopy, spurNode, fastestRoutes[0]);
-            /*for(int p = 0; (unsigned)p < fastestRoutes.size(); p++){
-                if(rootPath == slice(fastestRoutes[p], 0, j)){
-                    graphCopy[p].edges[j].second = INT_MAX;
-                }
-            }*/
-            
-            GraphNodes spurNodeObject = graphCopy[getNodeIndex(graphCopy, spurNode)];
-            next = Dijkstra(graphCopy, spurNodeObject, nodes[5], &nextRouteName, numberOfNodes, numberOfEdges);
-            nextRouteName[j].insert(nextRouteName[j].begin(), rootPath.begin(), rootPath.end());
-             /* for each path p in A: 
-              * // Remove the links that are ppart of the previous shortest paths which share the same root
-              *     if rootPath = p.nodes(0, j)
-              *         remove p.edge(i, i+1)*/
-             
-            /* spurpath = dijk(spurNode, goal)
-             * totalpath = rootpath + spurPath 
-             * nextFastes.append(totalPath)*/
-        }
+        char spurNode = fastestRoutes[0][j];
+        std::vector<char> rootPath = slice(fastestRoutes[0], 0, j - 1);
         
-        float nextRoutesSizes[nextRouteName.size()];
-        for(int k = 0; (unsigned)k < nextRouteName.size(); k++){
-            nextRoutesSizes[k] = findPathLength(nextRouteName[k], nodes);
-       }
-       cout << "";
+        graphCopy = removeNextEdge(graphCopy, spurNode, fastestRoutes[0]);
+        
+     
+        /*for(int p = 0; (unsigned)p < fastestRoutes.size(); p++){
+            if(rootPath == slice(fastestRoutes[p], 0, j)){
+                graphCopy[p].edges[j].second = INT_MAX;
+            }
+        }*/
+        
+        GraphNodes spurNodeObject = graphCopy[getNodeIndex(graphCopy, spurNode)];
+        next = Dijkstra(graphCopy, spurNodeObject, nodes[5], &nextRouteName, numberOfNodes, numberOfEdges);
+        nextRouteName[j].insert(nextRouteName[j].begin(), rootPath.begin(), rootPath.end());
+        
     }
     
-    return;
+    std::vector<float> nextRoutesSizes;
+    for(int x = 0; (unsigned)x < nextRouteName.size(); x++){
+        nextRoutesSizes.push_back(findPathLength(nextRouteName[x], nodes));
+   }
+   
+   for(int i = 0; i < k - 1; i++){
+    int lowest = nextRoutesSizes[0];
+    int lowestIndex = 0;
+    for(int k = 0; (unsigned)k < nextRouteName.size(); k++){
+        if(nextRoutesSizes[k] < lowest){
+            lowest = nextRoutesSizes[k];
+            lowestIndex = k;
+        }
+    }
+    fastestRoutes.push_back(nextRouteName[lowestIndex]);
+    nextRouteName.erase(nextRouteName.begin() + lowestIndex, nextRouteName.begin() + lowestIndex + 1);
+    nextRoutesSizes.erase(nextRoutesSizes.begin() + lowestIndex, nextRoutesSizes.begin() + lowestIndex + 1);
+   }
+
+    
+    return fastestRoutes;
 }
 
-void help(std::vector<GraphNodes> nodes, int numberOfNodes, int numberOfEdges, int k){
-    return;
+
+void printOutput(std::vector<std::vector<char> > routes, std::vector<GraphNodes> nodes){
+    
+    cout << "Outputs: " << endl;
+    for(int i = 0; i < routes.size(); i++){
+        cout << i+1 << ". ";
+        for(int j = 0; j < routes[i].size(); j++){
+            cout << routes[i][j] << " ";
+        }
+        cout << findPathLength(routes[i], nodes) << endl;
+    }
 }
 
 
@@ -356,15 +386,16 @@ int main(int argc, char *argv[]){
         i++;
     }
     
-    for(int i = 0; i < numberOfInputs; i++){
-        cout << inputArray[i] << endl;
-    }
-    
     int numberOfNodes = 0;
     int numberOfEdges = 0;
-    std::vector<GraphNodes> nodes = initalizeGraph(inputArray, numberOfInputs, &numberOfNodes, &numberOfEdges);
-    std::vector<GraphNodes> test;
-    KSP(nodes, numberOfNodes, numberOfEdges, 3);
-        
+    int beginIndex = 0;
+    int endIndex = 0;
+    int k;
+    std::vector<GraphNodes> nodes = initalizeGraph(inputArray, numberOfInputs, &beginIndex, &endIndex, &k,  &numberOfNodes, &numberOfEdges);
+    cout << "Number of Nodes: " << numberOfNodes << " Number of Edges: " << numberOfEdges << " K paths: " << k << endl;
+    
+    std::vector<std::vector<char> > fastestRoutes = KSP(nodes, numberOfNodes, numberOfEdges, beginIndex, endIndex, k);
+    printOutput(fastestRoutes, nodes);
+    
     file.close();
 }
